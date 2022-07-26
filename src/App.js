@@ -5,7 +5,10 @@ import React from "react";
 let photosAPI = "https://jsonplaceholder.typicode.com/photos";
 
 const getPics = async () => {
+  // fetch returns a promise, so we can use await
   let photosResponse = await fetch(photosAPI);
+  // json() also returns a promise, and since we want to run this after fetch, we can call it below
+  // and also use await
   let returnPhotos = await photosResponse.json();
   return {
     photos: returnPhotos,
@@ -15,12 +18,30 @@ const getPics = async () => {
 class App extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {};
+    this.state = {
+      photo: null,
+    };
   }
   componentDidMount = () => {
-    getPics().then((response) => {
-      console.log(response.photos[0]);
-    });
+    getPics()
+      .then((response) => {
+        const idx = Math.floor(Math.random() * 4000);
+        console.log(response.photos[idx]);
+        this.setState({ photo: response.photos[idx] });
+      })
+      .catch((e) => {
+        console.error(e);
+      });
+  };
+
+  renderPhoto = () => {
+    if (this.state.photo !== null) {
+      return (
+        <img src={this.state.photo.thumbnailUrl} alt={this.state.photo.title} />
+      );
+    } else {
+      return null;
+    }
   };
 
   render = () => {
@@ -41,6 +62,7 @@ class App extends React.Component {
           </a>
         </header> */}
         <h1>Here is some h1</h1>
+        {this.renderPhoto()}
       </div>
     );
   };
